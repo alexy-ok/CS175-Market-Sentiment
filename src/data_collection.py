@@ -64,11 +64,22 @@ class GuardianAPICollector:
         }
         
         try:
-            response = requests.get(endpoint, params=params)
+            response = requests.get(endpoint, params=params, timeout=10)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            
+            # Check API response status
+            if data.get("response", {}).get("status") != "ok":
+                error_msg = data.get("response", {}).get("message", "Unknown error")
+                print(f"API returned error: {error_msg}")
+                return None
+                
+            return data
+        except requests.exceptions.Timeout:
+            print(f"Request timeout for page {page}")
+            return None
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching articles: {e}")
+            print(f"Error fetching articles (page {page}): {e}")
             return None
     
     def collect_articles(self, from_date, to_date, max_articles=1000):
@@ -92,8 +103,8 @@ class GuardianAPICollector:
             print(f"Fetching page {page}...")
             response = self.fetch_articles(from_date, to_date, page)
             
-            if not response or response.get("response", {}).get("status") != "ok":
-                print("Failed to fetch articles or no more results")
+            if not response:
+                print("Failed to fetch articles")
                 break
             
             results = response.get("response", {}).get("results", [])
@@ -105,13 +116,14 @@ class GuardianAPICollector:
             articles.extend(results)
             
             total_pages = response.get("response", {}).get("pages", 1)
-            print(f"Collected {len(articles)} articles (Page {page}/{total_pages})")
+            current_page = response.get("response", {}).get("currentPage", page)
+            print(f"Collected {len(articles)} articles (Page {current_page}/{total_pages})")
             
             if page >= total_pages:
                 break
             
             page += 1
-            time.sleep(0.5)  # Rate limiting
+            time.sleep(0.1)  # Rate limiting (Guardian allows ~12 req/sec, we do ~10)
         
         return articles[:max_articles]
     
@@ -127,29 +139,41 @@ class GuardianAPICollector:
 
 def main():
     """Main function to collect articles."""
-    # Initialize collector
-    collector = GuardianAPICollector(GUARDIAN_API_KEY)
-    
-    # Set date range (last 2 years)
-    to_date = datetime.now()
-    from_date = to_date - timedelta(days=730)
-    
-    from_date_str = from_date.strftime("%Y-%m-%d")
-    to_date_str = to_date.strftime("%Y-%m-%d")
-    
-    # Collect articles
-    articles = collector.collect_articles(
-        from_date=from_date_str,
-        to_date=to_date_str,
-        max_articles=2000
-    )
-    
-    # Save articles
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"guardian_articles_{timestamp}.json"
-    collector.save_articles(articles, filename)
-    
-    print(f"\nCollection complete! Total articles: {len(articles)}")
+    try:
+        # Initialize collector
+        collector = GuardianAPICollector(GUARDIAN_API_KEY)
+        
+        # Set date range (last 2 years)
+        to_date = datetime.now()
+        from_date = to_date - timedelta(days=730)
+        
+        from_date_str = from_date.strftime("%Y-%m-%d")
+        to_date_str = to_date.strftime("%Y-%m-%d")
+        
+        # Collect articles
+        articles = collector.collect_articles(
+            from_date=from_date_str,
+            to_date=to_date_str,
+            max_articles=2000
+        )
+        
+        # Check if any articles were collected
+        if not articles:
+            print("\nNo articles were collected. Please check your API key and parameters.")
+            return
+        
+        # Save articles
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"guardian_articles_{timestamp}.json"
+        collector.save_articles(articles, filename)
+        
+        print(f"\nCollection complete! Total articles: {len(articles)}")
+        
+    except ValueError as e:
+        print(f"\nConfiguration error: {e}")
+        print("Please ensure GUARDIAN_API_KEY is set in your .env file")
+    except Exception as e:
+        print(f"\nUnexpected error: {e}")
 
 
 if __name__ == "__main__":
