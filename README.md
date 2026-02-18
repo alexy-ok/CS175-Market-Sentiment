@@ -39,7 +39,8 @@ CS175-Market-Sentiment/
 │   └── README.md
 ├── src/
 │   ├── data_collection.py      # Collect articles from Guardian API
-│   └── data_preprocessing.py   # Preprocess and prepare data
+│   ├── data_preprocessing.py   # Preprocess and prepare data
+│   └── stock_data_collection.py # Collect stock market data from Yahoo Finance API
 ├── models/               # Trained model checkpoints
 ├── results/              # Evaluation results
 ├── logs/                 # Training logs
