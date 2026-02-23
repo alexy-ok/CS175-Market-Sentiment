@@ -9,22 +9,21 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score
 
 # --- 1. Load the JSON file ---
-'''
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Construct absolute path to JSON file
-file_path = os.path.join(script_dir, "..", "raw", "guardian_articles_20260210_224419.json")
-
-# Normalize path
+file_path = os.path.join(
+    script_dir,
+    "..",
+    "data",
+    "raw",
+    "guardian_articles_20260210.json"
+)
 file_path = os.path.abspath(file_path)
-with open(file_path, "r", encoding="utf-8") as f:
-    articles = json.load(f)
-''' 
-file_path = 'C:\\Users\\robbi\\source\\repos\\CS175-Market-Sentiment\\data\\raw\\guardian_articles_20260210_224419.json'
+
 with open(file_path, "r", encoding="utf-8") as f:
     articles = json.load(f)
 # --- 2. Extract text for prediction ---
-articles = random.sample(articles, 500)
+articles = articles[:500]
 texts = []
 for art in articles:
     headline = art["fields"].get("headline", "")
@@ -41,18 +40,29 @@ finbert = pipeline("text-classification", model="ProsusAI/finbert")
 labels = []
 for text in texts:
     result = finbert(
-        text, 
+        text,
         truncation=True,
         max_length=512
-    )[0]  
-    label = result["label"]  # 'POSITIVE', 'NEUTRAL', 'NEGATIVE'
-    
+    )[0]
+
+    label = result["label"].lower()      
+    score = result["score"]              
+
+    # 5-class mapping logic
     if label == "negative":
-        labels.append(0)
+        if score > 0.75:
+            labels.append(0)  # Strong Negative
+        else:
+            labels.append(1)  # Leaning Negative
+
     elif label == "neutral":
-        labels.append(1)
-    else:
-        labels.append(2)
+        labels.append(2)      # Neutral
+
+    elif label == "positive":
+        if score > 0.75:
+            labels.append(4)  # Strong Positive
+        else:
+            labels.append(3)  # Leaning Positive
 
 # --- 5. Create DataFrame ---
 data = pd.DataFrame({
