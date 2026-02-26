@@ -11,7 +11,7 @@ class StockDataCollector:
     def grabDataFromRange(self, start_date, end_date):
         """Grab OHLCV data within a given timeframe."""
         data = self.symbol.history(start=start_date, end=end_date)
-        return data.to_string()
+        return data
     
     def grabDataFromPeriod(self, period):
          """Grab OHLCV data within a given period."""
@@ -30,7 +30,7 @@ class StockDataCollector:
             title = f"{self.symbol} Stock Price ({period})"
         elif start and end:
             data = self.grabDataFromRange(start, end)
-            title = f"{self.symbol} Stock Price ({start} to {end})"
+            title = f"{self.symbol.ticker} Stock Price ({start} to {end})"
 
         data['Close'].plot(title=title)
         plt.xlabel("Date")
