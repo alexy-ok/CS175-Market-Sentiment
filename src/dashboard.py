@@ -16,4 +16,5 @@ stock_data = sdc.StockDataCollector(yf.Ticker("VOO"))
 
 
 st.write("Stock data")
-st.pyplot(stock_data.plotStockData(start=date_from, end=date_to))
+fig = stock_data.plotStockData(start=date_from, end=date_to)
+st.pyplot(fig)

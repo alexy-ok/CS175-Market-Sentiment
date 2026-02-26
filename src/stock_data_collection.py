@@ -32,10 +32,11 @@ class StockDataCollector:
             data = self.grabDataFromRange(start, end)
             title = f"{self.symbol.ticker} Stock Price ({start} to {end})"
 
-        data['Close'].plot(title=title)
-        plt.xlabel("Date")
-        plt.ylabel("Close Price (USD)")
-        plt.show()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        data['Close'].plot(title=title, ax=ax)
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Close Price (USD)")
+        return fig
 
 if __name__ == '__main__':
     import yfinance as yf
