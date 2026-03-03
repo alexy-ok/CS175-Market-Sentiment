@@ -10,25 +10,19 @@ git clone <your-repo-url>
 cd CS175-Market-Sentiment
 ```
 
-### 2. Create Virtual Environment
-```bash
-python -m venv venv
-
-# On Windows:
-venv\Scripts\activate
-
-# On macOS/Linux:
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Get the Data
+### 3. Get the Data
 - Download the data from [https://drive.google.com/file/d/1g2rZhCMd6BJlYWuIUppel8YsZwC5Hnt0/view?usp=sharing]
 - Place it in `data/raw/` directory
+
+### 4. Start Application
+```bash
+python ./src/dashboard.py
+```
 
 ## Project Structure
 ```
