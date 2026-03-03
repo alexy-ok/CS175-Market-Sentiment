@@ -8,15 +8,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score
 
-# --- 1. Load the JSON file ---
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 file_path = os.path.join(
-    script_dir,
-    "..",
-    "data",
-    "raw",
-    "guardian_articles_20260210.json"
+    script_dir, "..", "data", "raw", "guardian_articles_20260210.json"
 )
 file_path = os.path.abspath(file_path)
 
@@ -29,7 +24,7 @@ for art in articles:
     headline = art["fields"].get("headline", "")
     standfirst = art["fields"].get("standfirst", "")
     body = art["fields"].get("bodyText", "")
-    
+
     full_text = headline + " " + standfirst + " " + body
     texts.append(full_text)
 
@@ -39,14 +34,10 @@ finbert = pipeline("text-classification", model="ProsusAI/finbert")
 # --- 4. Generate sentiment labels automatically ---
 labels = []
 for text in texts:
-    result = finbert(
-        text,
-        truncation=True,
-        max_length=512
-    )[0]
+    result = finbert(text, truncation=True, max_length=512)[0]
 
-    label = result["label"].lower()      
-    score = result["score"]              
+    label = result["label"].lower()
+    score = result["score"]
 
     # 5-class mapping logic
     if label == "negative":
@@ -56,7 +47,7 @@ for text in texts:
             labels.append(1)  # Leaning Negative
 
     elif label == "neutral":
-        labels.append(2)      # Neutral
+        labels.append(2)  # Neutral
 
     elif label == "positive":
         if score > 0.75:
@@ -65,10 +56,7 @@ for text in texts:
             labels.append(3)  # Leaning Positive
 
 # --- 5. Create DataFrame ---
-data = pd.DataFrame({
-    "text": texts,
-    "label": labels
-})
+data = pd.DataFrame({"text": texts, "label": labels})
 
 print(data.head())
 
