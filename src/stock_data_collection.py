@@ -11,7 +11,7 @@ class StockDataCollector:
     def grabDataFromRange(self, start_date, end_date):
         """Grab OHLCV data within a given timeframe."""
         data = self.symbol.history(start=start_date, end=end_date)
-        return data.to_string()
+        return data
     
     def grabDataFromPeriod(self, period):
          """Grab OHLCV data within a given period."""
@@ -42,7 +42,8 @@ if __name__ == '__main__':
 
     stockData = StockDataCollector(yf.Ticker("VOO"))
     
-    start_date = datetime.datetime(2026, 2, 10)
+    start_date = datetime.datetime(2024, 2, 17)
     end_date = datetime.datetime(2026, 2, 17)
-    print(stockData.grabDataFromRange(start_date, end_date))
+    # print(stockData.grabDataFromRange(start_date, end_date))
+    print(stockData.plotStockData(start_date, end_date))
 
