@@ -1,12 +1,10 @@
-"""
-Data preprocessing and preparation for BERT training.
-"""
 import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 import sys
+
 sys.path.append(str(Path(__file__).parent.parent))
 
 from config import (
@@ -15,177 +13,154 @@ from config import (
     TRAIN_SPLIT,
     VAL_SPLIT,
     TEST_SPLIT,
-    RANDOM_SEED
+    RANDOM_SEED,
 )
 
 
 class DataPreprocessor:
-    """Preprocess Guardian articles for sentiment analysis."""
-    
+
     def __init__(self):
         self.data = None
-        
+
     def load_articles(self, filepath):
-        """Load articles from JSON file."""
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             articles = json.load(f)
-        
+
         print(f"Loaded {len(articles)} articles")
         return articles
-    
+
     def extract_text_features(self, articles):
-        """Extract relevant text features from articles."""
         processed_data = []
-        
+
         for article in articles:
-            # Extract fields
-            article_id = article.get('id', '')
-            headline = article.get('webTitle', '')
-            
-            # Get body text from fields
-            fields = article.get('fields', {})
-            body_text = fields.get('bodyText', '')
-            standfirst = fields.get('standfirst', '')
-            
-            # Combine text
-            # Use headline + standfirst (summary) for more focused sentiment
+            article_id = article.get("id", "")
+            headline = article.get("webTitle", "")
+
+            fields = article.get("fields", {})
+            body_text = fields.get("bodyText", "")
+            standfirst = fields.get("standfirst", "")
+
             combined_text = f"{headline}. {standfirst}".strip()
-            
+
             if not combined_text:
                 continue
-            
-            processed_data.append({
-                'article_id': article_id,
-                'headline': headline,
-                'text': combined_text,
-                'full_body': body_text,
-                'published_date': article.get('webPublicationDate', ''),
-                'url': article.get('webUrl', '')
-            })
-        
+
+            processed_data.append(
+                {
+                    "article_id": article_id,
+                    "headline": headline,
+                    "text": combined_text,
+                    "full_body": body_text,
+                    "published_date": article.get("webPublicationDate", ""),
+                    "url": article.get("webUrl", ""),
+                }
+            )
+
         df = pd.DataFrame(processed_data)
         print(f"Extracted {len(df)} articles with valid text")
         return df
-    
+
     def clean_text(self, df):
-        """Clean and normalize text."""
-        # Remove duplicates
-        df = df.drop_duplicates(subset=['text'])
-        
-        # Remove HTML entities and extra whitespace first
-        df['text'] = df['text'].str.replace(r'\s+', ' ', regex=True)
-        df['text'] = df['text'].str.strip()
-        
-        # Remove very short texts (less than 20 characters) after cleaning
-        df = df[df['text'].str.len() >= 20]
-        
+        df = df.drop_duplicates(subset=["text"])
+
+        df["text"] = df["text"].str.replace(r"\s+", " ", regex=True)
+        df["text"] = df["text"].str.strip()
+
+        df = df[df["text"].str.len() >= 20]
+
         print(f"After cleaning: {len(df)} articles")
         return df
-    
+
     def save_for_labeling(self, df, output_file):
-        """
-        Save data in format for manual labeling.
-        Creates a CSV with text and empty sentiment column.
-        """
-        labeling_df = df[['article_id', 'headline', 'text']].copy()
-        labeling_df['sentiment'] = ''  # Empty column for manual labeling
-        
+        labeling_df = df[["article_id", "headline", "text"]].copy()
+        labeling_df["sentiment"] = ""
+
         output_path = PROCESSED_DATA_DIR / output_file
-        labeling_df.to_csv(output_path, index=False, encoding='utf-8')
-        
+        labeling_df.to_csv(output_path, index=False, encoding="utf-8")
+
         print(f"Saved {len(labeling_df)} articles for labeling to {output_path}")
-        print("\nPlease label the 'sentiment' column with: positive, neutral, or negative")
+        print(
+            "\nPlease label the 'sentiment' column with: positive, neutral, or negative"
+        )
         print("Based on the article's sentiment towards US markets/economy")
-        
+
     def load_labeled_data(self, filepath):
-        """Load labeled data."""
-        df = pd.read_csv(filepath, encoding='utf-8')
-        
-        # Filter out unlabeled rows
-        df = df[df['sentiment'].notna() & (df['sentiment'] != '')]
-        
-        # Normalize sentiment labels
-        df['sentiment'] = df['sentiment'].str.lower().str.strip()
-        
-        # Validate labels
-        valid_labels = ['positive', 'neutral', 'negative']
-        df = df[df['sentiment'].isin(valid_labels)]
-        
+        df = pd.read_csv(filepath, encoding="utf-8")
+
+        df = df[df["sentiment"].notna() & (df["sentiment"] != "")]
+
+        df["sentiment"] = df["sentiment"].str.lower().str.strip()
+
+        valid_labels = ["positive", "neutral", "negative"]
+        df = df[df["sentiment"].isin(valid_labels)]
+
         print(f"Loaded {len(df)} labeled articles")
         print(f"Label distribution:\n{df['sentiment'].value_counts()}")
-        
+
         return df
-    
+
     def create_train_val_test_split(self, df):
-        """Split data into train, validation, and test sets."""
 
         train_val_df, test_df = train_test_split(
-            df,
-            test_size=TEST_SPLIT,
-            random_state=RANDOM_SEED,
-            stratify=df['sentiment']
+            df, test_size=TEST_SPLIT, random_state=RANDOM_SEED, stratify=df["sentiment"]
         )
-        
+
         val_ratio = VAL_SPLIT / (TRAIN_SPLIT + VAL_SPLIT)
         train_df, val_df = train_test_split(
             train_val_df,
             test_size=val_ratio,
             random_state=RANDOM_SEED,
-            stratify=train_val_df['sentiment']
+            stratify=train_val_df["sentiment"],
         )
-        
+
         print(f"\nDataset split:")
         print(f"Train: {len(train_df)} samples")
         print(f"Validation: {len(val_df)} samples")
         print(f"Test: {len(test_df)} samples")
-        
+
         return train_df, val_df, test_df
-    
+
     def save_splits(self, train_df, val_df, test_df):
-        """Save train, validation, and test splits."""
         train_df.to_csv(PROCESSED_DATA_DIR / "train.csv", index=False)
         val_df.to_csv(PROCESSED_DATA_DIR / "val.csv", index=False)
         test_df.to_csv(PROCESSED_DATA_DIR / "test.csv", index=False)
-        
+
         print(f"\nSaved splits to {PROCESSED_DATA_DIR}")
 
 
 def process_raw_data():
-    """Process raw Guardian articles for labeling."""
     preprocessor = DataPreprocessor()
-    
-    # Find the most recent raw data file
+
     raw_files = list(RAW_DATA_DIR.glob("guardian_articles_*.json"))
-    
+
     if not raw_files:
         print("No raw data files found. Please run data_collection.py first.")
         return
-    
+
     latest_file = max(raw_files, key=lambda x: x.stat().st_mtime)
     print(f"Processing {latest_file.name}...")
-    
-    # Load and process
+
     articles = preprocessor.load_articles(latest_file)
     df = preprocessor.extract_text_features(articles)
     df = preprocessor.clean_text(df)
-    
-    # Save for labeling
+
     preprocessor.save_for_labeling(df, "articles_for_labeling.csv")
 
 
 def create_training_data():
-    """Create train/val/test splits from labeled data."""
     preprocessor = DataPreprocessor()
 
     labeled_file = PROCESSED_DATA_DIR / "articles_labeled.csv"
-    
+
     if not labeled_file.exists():
         print(f"Labeled data file not found: {labeled_file}")
-        print("Please label the data in 'articles_for_labeling.csv' and save as 'articles_labeled.csv'")
+        print(
+            "Please label the data in 'articles_for_labeling.csv' and save as 'articles_labeled.csv'"
+        )
         return
-    
+
     df = preprocessor.load_labeled_data(labeled_file)
-    
+
     train_df, val_df, test_df = preprocessor.create_train_val_test_split(df)
 
     preprocessor.save_splits(train_df, val_df, test_df)
@@ -193,17 +168,17 @@ def create_training_data():
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Preprocess Guardian articles")
     parser.add_argument(
         "--mode",
         choices=["prepare", "split"],
         default="prepare",
-        help="Mode: 'prepare' to create labeling file, 'split' to create train/val/test splits"
+        help="Mode: 'prepare' to create labeling file, 'split' to create train/val/test splits",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.mode == "prepare":
         process_raw_data()
     else:
