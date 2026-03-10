@@ -7,7 +7,6 @@ BASE_DIR = Path(__file__).parent.parent
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 OUTPUT_FILE = PROCESSED_DIR / "zotgpt_labels_all.json"
 
-
 def main():
     print("=" * 80)
     print("Merging ZotGPT Label Files")
