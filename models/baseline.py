@@ -1,14 +1,6 @@
 import json
 import os
-import random
-import pandas as pd
-from transformers import pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, accuracy_score
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 import logistic_regression
 import finbert_baseline
@@ -18,11 +10,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # File Structure
 file_path = os.path.join(
-    script_dir,
-    "..",
-    "data",
-    "raw",
-    "guardian_articles_20260210.json"
+    script_dir, "..", "data", "raw", "guardian_articles_20260210.json"
 )
 file_path = os.path.abspath(file_path)
 
@@ -37,7 +25,7 @@ for art in articles:
     headline = art["fields"].get("headline", "")
     standfirst = art["fields"].get("standfirst", "")
     body = art["fields"].get("bodyText", "")
-    
+
     full_text = headline + " " + standfirst + " " + body
     texts.append(full_text)
     labels.append(art.get("sentiment", "Neutral"))  # Default to Neutral if not present
