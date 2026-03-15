@@ -3,7 +3,7 @@ from pathlib import Path
 
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 # mac-config
 import os
@@ -23,7 +23,7 @@ RAW_DATA_FILE = max(
 
 # config
 MODEL_ID = "meta-llama/Llama-3.2-3B-Instruct"
-BATCH_SIZE = 8
+BATCH_SIZE = 32
 
 INT_TO_LABEL = {
     0: "negative",
@@ -38,7 +38,7 @@ LABELS = [INT_TO_LABEL[i] for i in range(5)]
 
 SYSTEM_PROMPT = (
     "You are a financial news sentiment classifier."
-    "Given a news headline, respond with exactly one of these labels:"
+    "Classify the sentiment of the following financial news article toward the US economy or financial markets."
     "Positive, Leaning Positive, Neutral, Leaning Negative, Negative."
     "Do not provide an explanation, just give the label."
 )
@@ -68,7 +68,6 @@ def sample_few_shot_examples(articles, labels, seed=42):
             
         article = rng.choice(candidates)
         text = format_article_text(article)
-        str_label = INT_TO_LABEL[int_label].title().replace(" N", " N")
         str_label = " ".join(w.capitalize() for w in INT_TO_LABEL[int_label].split())
         examples.append((text, str_label))
         print(f"  Few-shot [{str_label}]: {article.get('webTitle', '')[:70]}")
@@ -139,10 +138,10 @@ def load_pipeline(model_id=MODEL_ID):
         "text-generation",
         model=model_id,
         tokenizer=tokenizer,
-        torch_dtype=torch.float32, # change to float16 for MPS (Apple silicon gpu)
-        device="cpu",
-        do_sample=False,
+        dtype=torch.float16, # change to float16 for MPS (Apple silicon gpu)
+        # device="cpu", # add for mac
         max_new_tokens=8,
+        do_sample=False
     )
     return pipe
 
@@ -164,22 +163,21 @@ def build_few_shot_msgs(article_text, examples):
     return messages
 
 def parse_label(raw):
-    text = raw.strip().lower()
+    text = raw.lower().strip()
+    text = text.replace("sentiment:", "").replace("-", " ")
 
     for label in sorted(LABELS, key=len, reverse=True):
         if label in text:
             return label
-        
+
     return "unknown"
 
-def predict_batch(pipe, article_texts, mode):
-    all_messages = []
-    for text in article_texts:
-        if mode == "zero_shot":
-            msgs = build_zero_shot_msgs(text)
-        else:
-            msgs = build_few_shot_msgs(text)
-        all_messages.append(msgs)
+def predict_batch(pipe, article_texts, mode, few_shot_examples=None):
+    all_messages = [
+        build_zero_shot_msgs(text) if mode == "zero_shot"
+        else build_few_shot_msgs(text, few_shot_examples)
+        for text in article_texts
+    ]
 
     predictions = []
     total = len(all_messages)
@@ -196,9 +194,10 @@ def predict_batch(pipe, article_texts, mode):
 
 # evaluate
 def evaluate(predictions, true_labels):
-    acc    = accuracy_score(true_labels, predictions)
+    acc = accuracy_score(true_labels, predictions)
     report = classification_report(true_labels, predictions, labels=LABELS, zero_division=0)
-    return {"accuracy": acc, "report": report}
+    cm = confusion_matrix(true_labels, predictions, labels=LABELS)
+    return {"accuracy": acc, "report": report, "confusion matrix": cm}
 
 # dummy data
 DUMMY_ARTICLES = [
@@ -296,6 +295,9 @@ if __name__ == "__main__":
     # save results
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     output = {
+        "model": MODEL_ID,
+        "timestamp": timestamp,
+        "batch_size": BATCH_SIZE,
         "zero_shot": {
             "accuracy": results_0["accuracy"],
             "predictions": dict(zip(ids, zero_preds)),
