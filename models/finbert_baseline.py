@@ -1,8 +1,10 @@
 from transformers import pipeline
-from sklearn.metrics import classification_report, mean_absolute_error
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from scripts.model_tester import evaluate_model
 
 def run_finbert(texts, y_true):
-    
     finbert = pipeline(
         "text-classification",
         model="ProsusAI/finbert"
@@ -33,5 +35,4 @@ def run_finbert(texts, y_true):
             else:
                 y_pred.append(3)
 
-    print("FinBERT Accuracy:", mean_absolute_error(y_true, y_pred))
-    print(classification_report(y_true, y_pred))
+    evaluate_model("FinBERT Baseline", y_true, y_pred)

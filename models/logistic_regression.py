@@ -1,7 +1,11 @@
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import mean_absolute_error, classification_report
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from scripts.model_tester import evaluate_model
+
 
 def run_logistic_regression(texts, labels):
 
@@ -36,12 +40,10 @@ def run_logistic_regression(texts, labels):
     model.fit(X_train_vec, y_train)
 
     val_preds = model.predict(X_val_vec)
-    print("Validation MAE:", mean_absolute_error(y_val, val_preds))
-    print(classification_report(y_val, val_preds))
+    evaluate_model("LR Validation", y_val, val_preds)
 
     test_preds = model.predict(X_test_vec)
-    print("Test MAE:", mean_absolute_error(y_test, test_preds))
-    print(classification_report(y_test, test_preds))
+    evaluate_model("LR Test", y_test, test_preds)
     
 
     
