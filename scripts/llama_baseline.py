@@ -12,7 +12,7 @@ os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
 
 # paths
 BASE_DIR = Path(__file__).parent.parent
-RAW_DATA_FILE = BASE_DIR / "data" / "raw" / "guardian_articles_20260210_224419.json"
+RAW_DATA_FILE = BASE_DIR / "data" / "raw" / "guardian_articles_20260315_054452.json"
 PROCESSED_DATA_DIR = BASE_DIR / "data" / "processed"
 PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
