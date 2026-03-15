@@ -47,6 +47,15 @@ for article_id, sentiment in sentiment_data.items():
 # average sentiment per date
 avg_sentiment = {date: sum(sentiments) / len(sentiments) for date, sentiments in sentiment_by_date.items()}
 
+# create data frame for sentiment data
+sentiment_df = pd.DataFrame(
+    list(avg_sentiment.items()),
+    columns=['Date', 'Sentiment']
+)
+
+sentiment_df['Date'] = pd.to_datetime(sentiment_df['Date'])
+sentiment_df.set_index('Date', inplace=True)
+
 # load stock data
 stock_df = pd.read_csv('results/stock_results.csv', sep=',', index_col=0, parse_dates=True)
 
@@ -58,37 +67,55 @@ stock_df.index = pd.to_datetime(stock_df.index, utc=True)
 stock_df['Date'] = stock_df.index.date
 stock_df.set_index('Date', inplace=True)
 
-print(f"Stock data dates: {stock_df.index[:5]}")
-print(f"Sentiment dates: {list(avg_sentiment.keys())[:5]}")
+combined_df = sentiment_df.join(stock_df[['Return']], how='inner')
+combined_df = combined_df.sort_index()
 
-# create combined DataFrame with sentiment and next day return
-data = []
-for date, sent in avg_sentiment.items():
-    next_date = date + pd.Timedelta(days=1)
-    if next_date in stock_df.index:
-        ret = stock_df.loc[next_date, 'Return']
-        data.append({'Date': date, 'Sentiment': sent, 'Next_Return': ret})
-
-combined_df = pd.DataFrame(data)
+# smooth signals, 5-day roll
+combined_df['Return_Smoothed'] = combined_df['Return'].rolling(5).mean()
+combined_df['Sentiment_Smoothed'] = combined_df['Sentiment'].rolling(5).mean()
 
 if not combined_df.empty:
-    # Compute correlation
-    correlation = combined_df['Sentiment'].corr(combined_df['Next_Return'])
-    print(f"Correlation between average daily sentiment and next day's stock return: {correlation:.4f}")
-    
-    # Plot scatter plot
-    plt.figure(figsize=(10, 6))
-    plt.scatter(combined_df['Sentiment'], combined_df['Next_Return'], alpha=0.6)
-    plt.xlabel('Average Daily Sentiment (0-4)')
-    plt.ylabel('Next Day Stock Return')
-    plt.title(f'Sentiment vs Next Day Stock Return\nCorrelation: {correlation:.4f}')
+    print(combined_df.head())
+
+    # plot dual time series
+    fig, ax1 = plt.subplots(figsize=(12,6))
+    ax1.plot(
+        combined_df.index,
+        combined_df['Return_Smoothed'],
+        color='blue',
+        label='Stock Return',
+        alpha=0.7
+    )
+
+    ax1.set_ylabel("Stock Return", color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
+
+    # sentiment axis
+    ax2 = ax1.twinx()
+    ax2.plot(
+        combined_df.index,
+        combined_df['Sentiment_Smoothed'],
+        color='red',
+        label='Sentiment Score',
+        alpha=0.7
+    )
+    ax2.set_ylabel("Average Sentiment", color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
+
+    plt.title("Market Sentiment vs Stock Returns Over Time")
     plt.grid(True, alpha=0.3)
-    # plt.savefig('../results/sentiment_stock_correlation.png', dpi=300, bbox_inches='tight')
+
+    plt.savefig(
+        'results/sentiment_stock_timeseries.png',
+        dpi=300,
+        bbox_inches='tight'
+    )
+
     plt.show()
     
     # Save combined data
-    combined_df.to_csv('../results/sentiment_stock_combined.csv', index=False)
-    print("Combined data saved to ../results/sentiment_stock_combined.csv")
-    # print("Plot saved to ../results/sentiment_stock_correlation.png")
+    combined_df.to_csv('results/sentiment_stock_combined.csv', index=False)
+    print("Combined data saved to results/sentiment_stock_combined.csv")
+    print("Plot saved to results/sentiment_stock_correlation.png")
 else:
-    print("No matching dates found between sentiment data and stock data.")
+    print("No overlapping dates found between sentiment data and stock data.")
