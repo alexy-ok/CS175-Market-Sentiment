@@ -52,7 +52,7 @@ This project uses Natural Language Processing (NLP) to predict market sentiment 
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/alexy-ok/CS175-Market-Sentiment.git
 cd CS175-Market-Sentiment
 ```
 
@@ -92,12 +92,4 @@ CS175-Market-Sentiment/
 ├── requirements.txt      # Python dependencies
 ├── .env.example         # Environment variables template
 └── README.md            # This file
-```
-
-## Usage
-
-### Data Collection
-
-```bash
-python src/data_collection.py
 ```
