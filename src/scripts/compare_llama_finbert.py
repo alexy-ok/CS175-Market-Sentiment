@@ -4,9 +4,9 @@ from pathlib import Path
 import sys
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-from models.finbert_baseline import run_finbert
-from scripts.model_tester import evaluate_model
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from src.models.finbert_baseline import run_finbert
+from src.scripts.model_tester import evaluate_model
 from transformers import pipeline
 
 # mapping for LLaMA string predictions to numeric

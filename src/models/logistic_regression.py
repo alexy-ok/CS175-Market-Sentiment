@@ -3,8 +3,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-from scripts.model_tester import evaluate_model
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from src.scripts.model_tester import evaluate_model
 
 
 def run_logistic_regression(texts, labels):

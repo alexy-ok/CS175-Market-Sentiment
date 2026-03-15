@@ -1,13 +1,16 @@
 import json
 import os
-import logistic_regression
-import finbert_baseline
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from src.models import logistic_regression
+from src.models import finbert_baseline
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Open articles
 file_path = os.path.join(
-    script_dir, "..", "data", "raw", "guardian_articles_20260210.json"
+    script_dir, "..", "..", "data", "raw", "guardian_articles_20260210.json"
 )
 file_path = os.path.abspath(file_path)
 

@@ -26,15 +26,14 @@ This project uses Natural Language Processing (NLP) to predict market sentiment 
 - `gpt_label.py` - Requests sentiment labels from ZotGPT API (166 lines)
 - `stock_data_collection.py` - Retrieves stock market data using yfinance (33 lines)
 
-#### Model Implementations (`/models/`)
-- `baseline.py` - Orchestrates baseline model evaluation pipeline (44 lines)
+#### Model Implementations (`/src/models/`)
+- `baseline.py` - Orchestrates baseline model evaluation pipeline (47 lines)
 - `logistic_regression.py` - TF-IDF + Logistic Regression baseline model (37 lines)
 - `finbert_baseline.py` - Pre-trained FinBERT zero-shot inference (32 lines)
 - `finbert_tuned.py` - Fine-tuned FinBERT for 5-class sentiment classification (107 lines)
 
-#### Utility Scripts (`/scripts/`)
+#### Utility Scripts (`/src/scripts/`)
 - `model_tester.py` - Evaluation metrics (MAE, accuracy, classification report) (34 lines)
-- `plot.py` - Visualization of classification results (55 lines)
 - `label_with_zotgpt.py` - Automated labeling using ZotGPT (390 lines)
 - `llm_average_labels.py` - Aggregates multiple LLM label predictions (72 lines)
 - `merge_labels.py` - Combines labels from different sources (73 lines)
@@ -44,6 +43,8 @@ This project uses Natural Language Processing (NLP) to predict market sentiment 
 - `llama_baseline.py` - Llama model baseline implementation (227 lines)
 - `test_zotgpt.py` - ZotGPT API integration testing (91 lines)
 - `zotgpt_auto_label.py` - Automated ZotGPT labeling workflow (65 lines)
+
+**Total Lines of Original Code: ~1,900+ lines**
 
 
 ## Setup Instructions
@@ -78,9 +79,14 @@ python ./src/dashboard.py
 CS175-Market-Sentiment/
 ├── data/
 │   ├── raw/              # Raw articles from API
-│   ├── processed/        # Processed and labeled data
+│   └── processed/        # Processed and labeled data
 ├── src/
-├── models/               # Trained model checkpoints
+│   ├── models/           # Model implementations
+│   ├── scripts/          # Utility scripts for analysis and testing
+│   ├── dashboard.py      # Streamlit web application
+│   ├── data_collection.py
+│   ├── gpt_label.py
+│   └── stock_data_collection.py
 ├── results/              # Evaluation results
 ├── logs/                 # Training logs
 ├── requirements.txt      # Python dependencies
