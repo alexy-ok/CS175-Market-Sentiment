@@ -37,6 +37,7 @@ if __name__ == "__main__":
 
     stockData = StockDataCollector(yf.Ticker("VOO"))
 
-    start_date = datetime.datetime(2026, 2, 10)
-    end_date = datetime.datetime(2026, 2, 17)
-    print(stockData.grabDataFromRange(start_date, end_date))
+    start_date = datetime.datetime(2024, 2, 14)
+    end_date = datetime.datetime(2026, 2, 9)
+    data = stockData.grabDataFromRange(start_date, end_date)
+    data.to_csv("stock_results.csv")
