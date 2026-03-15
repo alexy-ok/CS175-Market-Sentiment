@@ -43,7 +43,7 @@ models/*.bin
 # Logs
 logs/*.log
 logs/*.csv
-
+finbert-tuned-out/checkpoint-44/
 # Results
 results/*.png
 results/*.csv

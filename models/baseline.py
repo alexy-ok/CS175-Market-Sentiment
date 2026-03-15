@@ -1,14 +1,11 @@
 import json
 import os
-
-
 import logistic_regression
 import finbert_baseline
 
-# Load JSON 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# File Structure
+# Open articles
 file_path = os.path.join(
     script_dir, "..", "data", "raw", "guardian_articles_20260210.json"
 )
@@ -17,31 +14,47 @@ file_path = os.path.abspath(file_path)
 with open(file_path, "r", encoding="utf-8") as f:
     articles = json.load(f)
 
-# Populating Texts and Labels
+# Get label mapping
+def load_averaged_labels(path):
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    label_map = {}
+    for id, score in data.items():
+        label_map[id] = int(score)
+
+    return label_map
+
+# Map labels to articles w/ texts
+def build_dataset_from_labels(articles, label_map):
+    texts = []
+    labels = []
+
+    for art in articles:
+        id = art.get("id")
+        if id not in label_map:
+            continue
+
+        headline = art["fields"].get("headline", "")
+        standfirst = art["fields"].get("standfirst", "")
+        body = art["fields"].get("bodyText", "")
+
+        text = headline + " " + standfirst + " " + body
+
+        texts.append(text)
+        labels.append(label_map[id])
+
+    return texts, labels
+
+# Remove later
 articles = articles[:100]
-texts = []
-labels = []
-for art in articles:
-    headline = art["fields"].get("headline", "")
-    standfirst = art["fields"].get("standfirst", "")
-    body = art["fields"].get("bodyText", "")
 
-    full_text = headline + " " + standfirst + " " + body
-    texts.append(full_text)
-    labels.append(art.get("sentiment", "Neutral"))  # Default to Neutral if not present
+averaged_labels = load_averaged_labels(
+    "data/processed/averaged_labels.json"
+)
+texts_eval, y_eval = build_dataset_from_labels(articles, averaged_labels)
 
-# Label Mapping
-label2id = {
-    "Negative": 0,
-    "Leaning Negative": 1,
-    "Neutral": 2,
-    "Leaning Positive": 3,
-    "Positive": 4
-}
-
-id2label = {v: k for k, v in label2id.items()}
-y_true = [label2id[label] for label in labels]
-
-logistic_regression.run_logistic_regression(texts, y_true)
-finbert_baseline.run_finbert(texts, y_true)
+# Run models
+logistic_regression.run_logistic_regression(texts_eval, y_eval)
+finbert_baseline.run_finbert(texts_eval, y_eval)
 
