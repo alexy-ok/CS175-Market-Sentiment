@@ -1,10 +1,4 @@
-# CS175 Market Sentiment Analysis using NLP
-
-This project uses Natural Language Processing (NLP) to predict market sentiment based on business articles from The Guardian.
-
-## Code Details
-
-### Libraries
+Libraries
 - torch
 - transformers
 - datasets
@@ -18,21 +12,20 @@ This project uses Natural Language Processing (NLP) to predict market sentiment 
 - streamlit
 - yfinance
 
-### Code Entirely Written by Us
-
-#### Core Source Files (`/src/`)
+Code Entirely Written by Us
+Core Source Files (/src/)
 - `dashboard.py` - Web GUI using Streamlit for interactive sentiment analysis (20 lines)
 - `data_collection.py` - Collects business articles from The Guardian API (109 lines)
 - `gpt_label.py` - Requests sentiment labels from ZotGPT API (166 lines)
 - `stock_data_collection.py` - Retrieves stock market data using yfinance (33 lines)
 
-#### Model Implementations (`/models/`)
+Model Implementations (/models/)
 - `baseline.py` - Orchestrates baseline model evaluation pipeline (44 lines)
 - `logistic_regression.py` - TF-IDF + Logistic Regression baseline model (37 lines)
 - `finbert_baseline.py` - Pre-trained FinBERT zero-shot inference (32 lines)
 - `finbert_tuned.py` - Fine-tuned FinBERT for 5-class sentiment classification (107 lines)
 
-#### Utility Scripts (`/scripts/`)
+Utility Scripts (/scripts/)
 - `model_tester.py` - Evaluation metrics (MAE, accuracy, classification report) (34 lines)
 - `plot.py` - Visualization of classification results (55 lines)
 - `label_with_zotgpt.py` - Automated labeling using ZotGPT (390 lines)
@@ -44,54 +37,3 @@ This project uses Natural Language Processing (NLP) to predict market sentiment 
 - `llama_baseline.py` - Llama model baseline implementation (227 lines)
 - `test_zotgpt.py` - ZotGPT API integration testing (91 lines)
 - `zotgpt_auto_label.py` - Automated ZotGPT labeling workflow (65 lines)
-
-
-## Setup Instructions
-
-### 1. Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd CS175-Market-Sentiment
-```
-
-### 2. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Get the Data
-
-- Download the data from [https://drive.google.com/file/d/1g2rZhCMd6BJlYWuIUppel8YsZwC5Hnt0/view?usp=sharing]
-- Place it in `data/raw/` directory
-
-### 4. Start Application
-
-```bash
-python ./src/dashboard.py
-```
-
-## Project Structure
-
-```
-CS175-Market-Sentiment/
-├── data/
-│   ├── raw/              # Raw articles from API
-│   ├── processed/        # Processed and labeled data
-├── src/
-├── models/               # Trained model checkpoints
-├── results/              # Evaluation results
-├── logs/                 # Training logs
-├── requirements.txt      # Python dependencies
-├── .env.example         # Environment variables template
-└── README.md            # This file
-```
-
-## Usage
-
-### Data Collection
-
-```bash
-python src/data_collection.py
-```
