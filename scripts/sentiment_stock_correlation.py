@@ -112,10 +112,38 @@ if not combined_df.empty:
     )
 
     plt.show()
+
+    # lagged sentiment analysis: does news sentiment predict the stock market?
+    lags = range(1,6)
+    lag_corrs = []
+
+    for lag in lags:
+        corr = combined_df['Sentiment'].corr(combined_df['Return'].shift(-lag))
+        lag_corrs.append(corr)
+
+    plt.figure(figsize=(8,5))
+    plt.bar(lags, lag_corrs)
+    plt.xticks(lags)
+    plt.axhline(0, color='black', linestyle='--', alpha=0.5)
+    plt.xlabel("Days Ahead")
+    plt.ylabel("Correlation")
+    plt.title("Sentiment vs Future Returns")
+
+    plt.savefig(
+        'results/lagged_sentiment_analysis.png',
+        dpi=300,
+        bbox_inches='tight'
+    )
+
+    plt.show()
+
+    # correlation measurements
+    correlation = combined_df['Sentiment'].corr(combined_df['Return'])
+    print("Correlation:", correlation)
+    smoothed_corr = combined_df['Sentiment_Smoothed'].corr(combined_df['Return_Smoothed'])
+    print("Smoothed correlation:", smoothed_corr)
     
     # Save combined data
     combined_df.to_csv('results/sentiment_stock_combined.csv', index=False)
-    print("Combined data saved to results/sentiment_stock_combined.csv")
-    print("Plot saved to results/sentiment_stock_correlation.png")
 else:
     print("No overlapping dates found between sentiment data and stock data.")

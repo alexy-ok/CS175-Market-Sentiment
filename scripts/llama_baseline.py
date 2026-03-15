@@ -199,53 +199,17 @@ def evaluate(predictions, true_labels):
     cm = confusion_matrix(true_labels, predictions, labels=LABELS)
     return {"accuracy": acc, "report": report, "confusion matrix": cm}
 
-# dummy data
-DUMMY_ARTICLES = [
-    {"id": "test/positive-1",        "type": "article", "webTitle": "Markets surge on blowout jobs report",           "fields": {"bodyText": "Wall Street surged Friday after the Labor Department reported 350,000 jobs added, far exceeding expectations. The S&P 500 climbed 2.1%, led by financials and consumer discretionary stocks. Unemployment fell to 3.4%."}},
-    {"id": "test/leaning-positive-1","type": "article", "webTitle": "Stocks edge higher after dovish Fed comments",    "fields": {"bodyText": "Equity markets drifted slightly higher Thursday after Fed minutes suggested policymakers are open to pausing rate hikes. Gains were modest, with the Dow up 0.4%, as investors remained cautious."}},
-    {"id": "test/neutral-1",         "type": "article", "webTitle": "Fed holds rates steady, offers no new guidance", "fields": {"bodyText": "The Federal Reserve held its benchmark rate steady at 5.25-5.5% on Wednesday. Chair Powell said the committee would remain data-dependent and gave no clear signal on future cuts or hikes."}},
-    {"id": "test/leaning-negative-1","type": "article", "webTitle": "Consumer spending misses forecasts",             "fields": {"bodyText": "Consumer spending rose just 0.1% in October, below the 0.3% forecast, as higher borrowing costs weighed on households. Analysts warned the soft reading could drag on fourth-quarter GDP."}},
-    {"id": "test/negative-1",        "type": "article", "webTitle": "Markets plunge on recession fears",              "fields": {"bodyText": "Stocks tumbled sharply Friday as weak manufacturing data stoked recession fears. The Nasdaq fell 3.5%, the S&P 500 dropped 2.8%, and bond yields spiked to their highest since 2008. Analysts warned of further downside."}},
-    {"id": "test/positive-2",        "type": "article", "webTitle": "Tech stocks rally on strong earnings",           "fields": {"bodyText": "Technology shares led a broad market rally after several major firms reported better-than-expected quarterly earnings. Investors cheered the results, pushing the Nasdaq up 1.8% on the session."}},
-    {"id": "test/neutral-2",         "type": "article", "webTitle": "Oil prices steady amid mixed signals",           "fields": {"bodyText": "Crude oil prices held steady Thursday as OPEC output data and US inventory figures sent conflicting signals to traders. Analysts said the market was in a wait-and-see mode ahead of next week's Fed meeting."}},
-    {"id": "test/negative-2",        "type": "article", "webTitle": "Bank shares fall on credit concern warnings",    "fields": {"bodyText": "Financial sector stocks slid after several large banks flagged rising credit card delinquencies and tightening lending standards. The KBW Bank Index fell 2.1%, with analysts cutting price targets across the sector."}},
-    {"id": "test/leaning-negative-2","type": "article", "webTitle": "Retail sales dip, missing analyst forecasts",   "fields": {"bodyText": "US retail sales fell 0.2% in September, slightly below the flat reading economists had forecast. While the labour market remains resilient, the data added to concerns about slowing consumer momentum heading into the holiday season."}},
-    {"id": "test/leaning-positive-2","type": "article", "webTitle": "Inflation cools slightly, boosting rate-cut hopes", "fields": {"bodyText": "Consumer prices rose 3.1% year-on-year in November, down from 3.2% the prior month. The modest decline raised hopes that the Fed could begin cutting rates in the first half of next year, sending stocks modestly higher."}},
-]
-
-DUMMY_LABELS = {
-    "test/positive-1":         4,
-    "test/leaning-positive-1": 3,
-    "test/neutral-1":          2,
-    "test/leaning-negative-1": 1,
-    "test/negative-1":         0,
-    "test/positive-2":         4,
-    "test/neutral-2":          2,
-    "test/negative-2":         0,
-    "test/leaning-negative-2": 1,
-    "test/leaning-positive-2": 3,
-}
-
 if __name__ == "__main__":
-    test_mode = "--test" in sys.argv
-
-    if test_mode:
-        print("=" * 80)
-        print("RUNNING IN TEST MODE (dummy data, no API key or files needed)")
-        print("=" * 80)
-        articles      = DUMMY_ARTICLES
-        zotgpt_labels = DUMMY_LABELS
+    if len(sys.argv) > 1:
+        label_file = Path(sys.argv[1])
     else:
-        if len(sys.argv) > 1:
-            label_file = Path(sys.argv[1])
-        else:
-            label_file = PROCESSED_DATA_DIR / "zotgpt_labels_all.json"
-            if not label_file.exists():
-                print(f"Label file not found: {label_file}")
-                print("Run scripts/merge_labels.py first, or use --test for dummy data.")
-                sys.exit(1)
-        articles      = load_articles()
-        zotgpt_labels = load_labels(label_file)
+        label_file = PROCESSED_DATA_DIR / "zotgpt_labels_all.json"
+        if not label_file.exists():
+            print(f"Label file not found: {label_file}")
+            print("Run scripts/merge_labels.py first, or use --test for dummy data.")
+            sys.exit(1)
+    articles      = load_articles()
+    zotgpt_labels = load_labels(label_file)
 
     # sample few-shot examples, exclude from evaluation
     print("\nSampling few-shot examples from labeled dataset:")
