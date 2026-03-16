@@ -20,7 +20,6 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTICLES_FILE = ROOT / "data" / "raw" / "guardian_articles_20260210.json"
 LABEL_FILE = ROOT / "data" / "processed" / "averaged_labels.json"
 
-
 def load_data():
     with open(ARTICLES_FILE, "r", encoding="utf-8") as f:
         articles = json.load(f)
@@ -114,13 +113,12 @@ def main():
         compute_metrics=compute_metrics,
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint="finbert-tuned-out/checkpoint-44")
     val_metrics = trainer.evaluate(tokenized["validation"])
     test_metrics = trainer.evaluate(tokenized["test"])
 
     print("Validation:", val_metrics)
     print("Test:", test_metrics)
-
 
 if __name__ == "__main__":
     main()

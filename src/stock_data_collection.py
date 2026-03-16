@@ -36,7 +36,8 @@ if __name__ == "__main__":
     import yfinance as yf
 
     stockData = StockDataCollector(yf.Ticker("VOO"))
-
     start_date = datetime.datetime(2026, 2, 10)
     end_date = datetime.datetime(2026, 2, 17)
     print(stockData.grabDataFromRange(start_date, end_date))
+    stockData.plotStockData(start=start_date, end=end_date)
+    plt.show()

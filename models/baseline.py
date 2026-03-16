@@ -46,8 +46,6 @@ def build_dataset_from_labels(articles, label_map):
 
     return texts, labels
 
-# Remove later
-articles = articles[:100]
 
 averaged_labels = load_averaged_labels(
     "data/processed/averaged_labels.json"
