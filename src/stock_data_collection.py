@@ -35,7 +35,7 @@ class StockDataCollector:
 if __name__ == "__main__":
     import yfinance as yf
 
-    stockData = StockDataCollector(yf.Ticker("XLF"))
+    stockData = StockDataCollector(yf.Ticker("VOO")) # ETFs: VOO, QQQ, XLF
 
     start_date = datetime.datetime(2024, 2, 14)
     end_date = datetime.datetime(2026, 2, 9)

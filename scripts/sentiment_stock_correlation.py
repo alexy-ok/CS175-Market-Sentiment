@@ -137,6 +137,15 @@ if not combined_df.empty:
 
     plt.show()
 
+    # directional accuracy (sentiment direction vs next-day return direction)
+    combined_df['Next_Return'] = combined_df['Return'].shift(-1)
+    combined_df['Sentiment_Dir'] = combined_df['Sentiment'].apply(lambda x: 1 if x > 2 else (-1 if x < 2 else 0))
+    combined_df['Return_Dir'] = combined_df['Next_Return'].apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
+
+    directional_mask = (combined_df['Sentiment_Dir'] != 0) & (combined_df['Return_Dir'] != 0)
+    directional_accuracy = (combined_df.loc[directional_mask, 'Sentiment_Dir'] == combined_df.loc[directional_mask, 'Return_Dir']).mean()
+    print(f"Directional accuracy (next-day return): {directional_accuracy:.3f} based on {directional_mask.sum()} days")
+
     # correlation measurements
     correlation = combined_df['Sentiment'].corr(combined_df['Return'])
     print("Correlation:", correlation)

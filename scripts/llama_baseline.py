@@ -37,10 +37,14 @@ LABEL_TO_INT = {v: k for k, v in INT_TO_LABEL.items()}
 LABELS = [INT_TO_LABEL[i] for i in range(5)]
 
 SYSTEM_PROMPT = (
-    "You are a financial news sentiment classifier."
-    "Classify the sentiment of the following financial news article toward the US economy or financial markets."
-    "Positive, Leaning Positive, Neutral, Leaning Negative, Negative."
-    "Do not provide an explanation, just give the label."
+    "Analyze the following article and classify its sentiment/outlook on the US stock market."
+    "Task: Classify the article's sentiment toward the US stock market into one of five categories:"
+    "POSITIVE - The article suggests optimistic outlook, growth, gains, bullish sentiment, or favorable conditions for US stocks"
+    "LEANING POSITIVE - The article suggests an optimistic outlook, growth, gains, bullish sentiment, or favorable conditions for US stocks, but with some caveats or qualifiers"
+    "NEUTRAL - The article presents balanced view, mixed signals, or is not directly related to US stock market sentiment"
+    "LEANING NEGATIVE - The article suggests a pessimistic outlook, losses, bearish sentiment, concerns, or unfavorable conditions for US stocks, but with some caveats or qualifiers"
+    "NEGATIVE - The article suggests pessimistic outlook, losses, bearish sentiment, concerns, or unfavorable conditions for US stocks"
+    "Respond with ONLY ONE NUMBER: 4 - POSITIVE, 3 - LEANING POSITIVE, 2 - NEUTRAL, 1 - LEANING NEGATIVE, 0 - NEGATIVE"
 )
 
 def sample_few_shot_examples(articles, labels, seed=42):
