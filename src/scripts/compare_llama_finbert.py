@@ -130,11 +130,11 @@ def plot_model_comparison(llama_preds, finbert_preds, y_true, title_prefix, save
 
 def main():
     # load LLaMA results
-    with open('data/processed/llama_baseline_results_20260315_163430.json', 'r') as f:
+    with open('data/processed/llama_baseline_results.json', 'r') as f:
         llama_results = json.load(f)
     
     # load true labels
-    with open('data/processed/averaged_labels.json', 'r') as f:
+    with open('data/processed/hand_labels_for_few_shot.json', 'r') as f:
         true_labels = json.load(f)
     
     # load raw articles
@@ -154,8 +154,8 @@ def main():
         if article_id in true_labels and article_id in articles:
             y_true.append(true_labels[article_id])
             
-            llama_zero_preds.append(llama_mapping.get(zero_shot_preds[article_id], 2))  # default to neutral
-            llama_few_preds.append(llama_mapping.get(few_shot_preds[article_id], 2))
+            llama_zero_preds.append(zero_shot_preds[article_id])
+            llama_few_preds.append(few_shot_preds[article_id])
             
             # get text for FinBERT
             article = articles[article_id]
