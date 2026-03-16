@@ -1,0 +1,47 @@
+{
+  "model": "meta-llama/Llama-3.2-3B-Instruct",
+  "timestamp": "20260316_204828",
+  "batch_size": 32,
+  "zero_shot": {
+    "accuracy": 0.3,
+    "predictions": {
+      "business/2026/jan/22/taco-thursday-european-stocks-rise-trump-chickens-out-on-tariff-threat": 1,
+      "business/2026/jan/19/gold-silver-record-highs-markets-trump-latest-tariff-shock": 1,
+      "business/2025/mar/03/european-defence-stocks-surge-as-arms-manufacturers-eye-orders-boom": 1,
+      "business/2025/feb/03/uk-european-stock-markets-tumble-trump-tariff-tantrum": 1,
+      "business/2025/jan/01/financial-markets-end-2024-strong-post-pandemic-recovery": 1,
+      "business/2024/sep/19/wall-street-federal-reserve-interest-rate-cut": 4,
+      "business/article/2024/jun/09/stop-shein-listing-on-the-ftse-workers-rights-campaigners-urge": 1,
+      "business/article/2024/may/31/trump-media-stock-wealth-declines-guilty-verdict": 1,
+      "business/2024/apr/22/ftse-100-record-high-interest-cuts-rate-pound-dollar": 1,
+      "business/2024/mar/27/how-can-donald-trumps-lossmaking-truth-social-be-worth-8bn": 1
+    }
+  },
+  "few_shot": {
+    "accuracy": 0.3,
+    "predictions": {
+      "business/2026/jan/22/taco-thursday-european-stocks-rise-trump-chickens-out-on-tariff-threat": 4,
+      "business/2026/jan/19/gold-silver-record-highs-markets-trump-latest-tariff-shock": 2,
+      "business/2025/mar/03/european-defence-stocks-surge-as-arms-manufacturers-eye-orders-boom": 4,
+      "business/2025/feb/03/uk-european-stock-markets-tumble-trump-tariff-tantrum": 2,
+      "business/2025/jan/01/financial-markets-end-2024-strong-post-pandemic-recovery": 4,
+      "business/2024/sep/19/wall-street-federal-reserve-interest-rate-cut": 4,
+      "business/article/2024/jun/09/stop-shein-listing-on-the-ftse-workers-rights-campaigners-urge": 2,
+      "business/article/2024/may/31/trump-media-stock-wealth-declines-guilty-verdict": 3,
+      "business/2024/apr/22/ftse-100-record-high-interest-cuts-rate-pound-dollar": 4,
+      "business/2024/mar/27/how-can-donald-trumps-lossmaking-truth-social-be-worth-8bn": 3
+    }
+  },
+  "ground_truth": {
+    "business/2026/jan/22/taco-thursday-european-stocks-rise-trump-chickens-out-on-tariff-threat": 3,
+    "business/2026/jan/19/gold-silver-record-highs-markets-trump-latest-tariff-shock": 0,
+    "business/2025/mar/03/european-defence-stocks-surge-as-arms-manufacturers-eye-orders-boom": 3,
+    "business/2025/feb/03/uk-european-stock-markets-tumble-trump-tariff-tantrum": 0,
+    "business/2025/jan/01/financial-markets-end-2024-strong-post-pandemic-recovery": 4,
+    "business/2024/sep/19/wall-street-federal-reserve-interest-rate-cut": 4,
+    "business/article/2024/jun/09/stop-shein-listing-on-the-ftse-workers-rights-campaigners-urge": 2,
+    "business/article/2024/may/31/trump-media-stock-wealth-declines-guilty-verdict": 1,
+    "business/2024/apr/22/ftse-100-record-high-interest-cuts-rate-pound-dollar": 2,
+    "business/2024/mar/27/how-can-donald-trumps-lossmaking-truth-social-be-worth-8bn": 1
+  }
+}
