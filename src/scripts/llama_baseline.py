@@ -72,9 +72,8 @@ def sample_few_shot_examples(articles, labels, seed=42):
             
         article = rng.choice(candidates)
         text = format_article_text(article)
-        str_label = " ".join(w.capitalize() for w in INT_TO_LABEL[int_label].split())
-        examples.append((text, str_label))
-        print(f"  Few-shot [{str_label}]: {article.get('webTitle', '')[:70]}")
+        examples.append((text, str(int_label)))
+        print(f"  Few-shot [{int_label} - {INT_TO_LABEL[int_label]}]: {article.get('webTitle','')[:70]}")
 
     return examples
 
@@ -130,7 +129,7 @@ def prepare_dataset(articles, labels, exclude_ids: set[str] | None = None):
 
         ids.append(article_id)
         texts.append(format_article_text(article))
-        string_labels.append(INT_TO_LABEL[labels[article_id]])
+        string_labels.append(labels[article_id])
 
     print(f"Matched {len(ids)} labeled, non-liveblog articles")
     return ids, texts, string_labels
@@ -167,14 +166,13 @@ def build_few_shot_msgs(article_text, examples):
     return messages
 
 def parse_label(raw):
-    text = raw.lower().strip()
-    text = text.replace("sentiment:", "").replace("-", " ")
+    text = raw.strip()
 
-    for label in sorted(LABELS, key=len, reverse=True):
-        if label in text:
-            return label
+    for char in text:
+        if char in {"0","1","2","3","4"}:
+            return int(char)
 
-    return "unknown"
+    return -1
 
 def predict_batch(pipe, article_texts, mode, few_shot_examples=None):
     all_messages = [
@@ -199,20 +197,20 @@ def predict_batch(pipe, article_texts, mode, few_shot_examples=None):
 # evaluate
 def evaluate(predictions, true_labels):
     acc = accuracy_score(true_labels, predictions)
-    report = classification_report(true_labels, predictions, labels=LABELS, zero_division=0)
-    cm = confusion_matrix(true_labels, predictions, labels=LABELS)
+    report = classification_report(true_labels, predictions, labels=[0,1,2,3,4], zero_division=0)
+    cm = confusion_matrix(true_labels, predictions, labels=[0,1,2,3,4])
     return {"accuracy": acc, "report": report, "confusion matrix": cm}
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         label_file = Path(sys.argv[1])
     else:
-        label_file = PROCESSED_DATA_DIR / "zotgpt_labels_all.json"
+        label_file = PROCESSED_DATA_DIR / "hand_labels_for_few_shot.json"
         if not label_file.exists():
             print(f"Label file not found: {label_file}")
             print("Run scripts/merge_labels.py first, or use --test for dummy data.")
             sys.exit(1)
-    articles      = load_articles()
+    articles = load_articles()
     zotgpt_labels = load_labels(label_file)
 
     # sample few-shot examples, exclude from evaluation
@@ -238,7 +236,7 @@ if __name__ == "__main__":
     print("=" * 80)
     zero_preds = predict_batch(pipe, texts, mode="zero_shot")
 
-    unknown_0 = zero_preds.count("unknown")
+    unknown_0 = zero_preds.count(-1)
     if unknown_0:
         print(f"Warning: {unknown_0} unparseable predictions — check raw outputs")
 
@@ -252,7 +250,7 @@ if __name__ == "__main__":
     print("=" * 80)
     few_preds = predict_batch(pipe, texts, mode="few_shot", few_shot_examples=few_shot_examples)
 
-    unknown_k = few_preds.count("unknown")
+    unknown_k = few_preds.count(-1)
     if unknown_k:
         print(f"Warning: {unknown_k} unparseable predictions — check raw outputs")
 
