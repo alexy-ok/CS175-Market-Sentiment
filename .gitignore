@@ -49,8 +49,6 @@ results/*.png
 results/*.csv
 
 # Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
 
 # PyTorch
 *.pth
