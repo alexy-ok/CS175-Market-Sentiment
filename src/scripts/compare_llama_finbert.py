@@ -178,9 +178,9 @@ def main():
         evaluate_model("FinBERT Baseline", y_true, finbert_preds)
     
     plot_model_comparison(llama_zero_preds, finbert_preds, y_true,
-                          title_prefix="0-shot", save_path="results/0-shot_model_comparison.png")
+                          title_prefix="0-shot", save_path="visualizations/0-shot_model_comparison.png")
     plot_model_comparison(llama_few_preds, finbert_preds, y_true,
-                          title_prefix="Few-shot", save_path="results/few-shot_model_comparison.png")
+                          title_prefix="Few-shot", save_path="visualizations/few-shot_model_comparison.png")
 
 if __name__ == "__main__":
     main()
